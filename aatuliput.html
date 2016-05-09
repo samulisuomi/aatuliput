@@ -6,18 +6,20 @@
 	</head>
 
 	<body>
-		<h2>Syötä koodi</h2>
-		<form onsubmit="checkCode();return false">
-			<input id="codeInput" type="text">
-			<br>
-			<input type="submit" value="Tarkista">
-			<br>
-			<br>
-		</form>
+		<div style="text-align: center; line-height: 2em">
+			<h1>Syötä koodi</h1>
+			<form onsubmit="checkCode();return false">
+				<input id="codeInput" type="text">
+				<br>
+				<input type="submit" value="Tarkista">
+			</form>
+		</div>
 		<hr>
-		<p><strong>Import: </strong><input id="fileInput" type="file"> (HUOM: Exporttaa muutokset ennen uuden tiedoston importtaamista!)</p>
-		<p><strong>Export: </strong><button onclick="exportFile()">Tallenna</button>
-		<p>Tallentuu LF-rivinvaihdoilla (Unix), hoida suora muokkaaminen esim. Notepad++:lla.</p>
+		<div style="line-height: 1.5em">
+			<p><strong>Import: </strong><input id="fileInput" type="file"><br>Yliajaa nykyisen listan ja local storagen! Exporttaa muutokset ennen uuden tiedoston importtaamista.</p>
+			<p><strong>Export: </strong><button onclick="exportFile()">Tallenna</button><br>Tallentuu LF-rivinvaihdoilla (Unix), hoida suora muokkaaminen esim. Notepad++:lla.<p>
+			<p><button onclick="saveToLocalStorage()">Pakota tallennus local storageen</button><br>Tallentuu automaattisesti 10 sek välein muutenkin. Näin ollen developer toolsien kautta tehdyt muokkaukset tallentuvat.</p>
+		</div>
 		<h3 id="fileDisplayHeader"></h3>
 		<pre id="fileDisplayArea"></pre>
 		<script>
@@ -48,7 +50,7 @@
 						reader.onload = function(e) {
 							fileDisplayHeader.innerText = "Nykyinen lista:"
 							fileDisplayArea.innerText = reader.result;
-							localStorage.koodilista = reader.result; // update localstorage
+							saveToLocalStorage();
 						}
 						reader.readAsText(file, "UTF-8");
 					} else {
@@ -56,6 +58,10 @@
 					}
 				});
 			}
+
+			window.setInterval(function(){
+				saveToLocalStorage()
+			}, 10000);
 
 			function checkCode() {
 				var DOES_EXIST = "Noudettavissa";
@@ -69,7 +75,7 @@
 						if (fileDisplayArea.innerText.search(input + " KAYTETTY") == -1) {
 							result = DOES_EXIST;
 							fileDisplayArea.innerText = fileDisplayArea.innerText.replace(input, input + " KAYTETTY " + new Date());
-							localStorage.koodilista = fileDisplayArea.innerText; // update localstorage
+							saveToLocalStorage();
 						} else {
 							result = DOES_NOT_EXIST;
 						}
@@ -110,6 +116,10 @@
 
 			function destroyClickedElement(event) {
 				document.body.removeChild(event.target);
+			}
+
+			function saveToLocalStorage() {
+				localStorage.koodilista = fileDisplayArea.innerText;
 			}
 
 		</script>
