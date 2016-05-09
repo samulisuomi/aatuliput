@@ -15,7 +15,9 @@
 			<br>
 		</form>
 		<hr>
-		<p><input id="fileInput" type="file"></p>
+		<p><strong>Import: </strong><input id="fileInput" type="file"> (HUOM: Exporttaa muutokset ennen uuden tiedoston importtaamista!)</p>
+		<p><strong>Export: </strong><button onclick="exportFile()">Tallenna</button>
+		<p>Tallentuu LF-rivinvaihdoilla (Unix), hoida suora muokkaaminen esim. Notepad++:lla.</p>
 		<h3 id="fileDisplayHeader"></h3>
 		<pre id="fileDisplayArea"></pre>
 		<script>
@@ -25,6 +27,17 @@
 				var fileDisplayHeader = document.getElementById('fileDisplayHeader');
 				fileDisplayArea = document.getElementById('fileDisplayArea');
 
+				if (typeof(Storage) !== "undefined") {
+	        if (localStorage.koodilista) {
+							fileDisplayHeader.innerText = "Nykyinen lista:"
+	            fileDisplayArea.innerText = localStorage.koodilista;
+	        } else {
+	            fileDisplayArea.innerText = "Tiedostoa ei ole valittu";
+	        }
+		    } else {
+		        fileDisplayArea.innerText = "Sorry, your browser does not support web storage...";
+		    }
+
 				fileInput.addEventListener('change', function(e) {
 					var file = fileInput.files[0];
 					var textType = /text.*/;
@@ -33,10 +46,11 @@
 						var reader = new FileReader();
 
 						reader.onload = function(e) {
-							fileDisplayHeader.innerText = "Tiedoston sisältö:"
+							fileDisplayHeader.innerText = "Nykyinen lista:"
 							fileDisplayArea.innerText = reader.result;
+							localStorage.koodilista = reader.result;
 						}
-						reader.readAsText(file);
+						reader.readAsText(file, "UTF-8");
 					} else {
 						fileDisplayArea.innerText = "Tiedostoa ei tueta."
 					}
@@ -58,6 +72,39 @@
 				document.getElementById("codeInput").value = "";
 				document.getElementById("codeInput").focus();
 			}
+
+			function exportFile() {
+				var text = fileDisplayArea.innerText;
+				var filename = "aatuilmot_" + new Date().getTime() + ".txt";
+				var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+
+				// Invisible download link:
+				var downloadLink = document.createElement("a");
+				downloadLink.download = filename;
+				downloadLink.innerHTML = "Download File";
+				if (window.URL != null)
+				{
+					// Chrome allows the link to be clicked
+					// without actually adding it to the DOM.
+					downloadLink.href = window.URL.createObjectURL(blob);
+				}
+				else
+				{
+					// Firefox requires the link to be added to the DOM
+					// before it can be clicked.
+					downloadLink.href = window.URL.createObjectURL(blob);
+					downloadLink.onclick = destroyClickedElement;
+					downloadLink.style.display = "none";
+					document.body.appendChild(downloadLink);
+				}
+
+				downloadLink.click();
+			}
+
+			function destroyClickedElement(event) {
+				document.body.removeChild(event.target);
+			}
+
 		</script>
 
 	</body>
