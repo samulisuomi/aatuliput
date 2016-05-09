@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Aatuliput</title>
+	</head>
+
+	<body>
+		<h2>Syötä koodi</h2>
+		<form onsubmit="checkCode();return false">
+			<input id="codeInput" type="text">
+			<br>
+			<input type="submit" value="Tarkista">
+			<br>
+			<br>
+		</form>
+		<hr>
+		<p><input id="fileInput" type="file"></p>
+		<h3 id="fileDisplayHeader"></h3>
+		<pre id="fileDisplayArea"></pre>
+		<script>
+			window.onload = function() {
+				document.getElementById("codeInput").focus();
+				var fileInput = document.getElementById('fileInput');
+				var fileDisplayHeader = document.getElementById('fileDisplayHeader');
+				fileDisplayArea = document.getElementById('fileDisplayArea');
+
+				fileInput.addEventListener('change', function(e) {
+					var file = fileInput.files[0];
+					var textType = /text.*/;
+
+					if (file.type.match(textType)) {
+						var reader = new FileReader();
+
+						reader.onload = function(e) {
+							fileDisplayHeader.innerText = "Tiedoston sisältö:"
+							fileDisplayArea.innerText = reader.result;
+						}
+						reader.readAsText(file);
+					} else {
+						fileDisplayArea.innerText = "Tiedostoa ei tueta."
+					}
+				});
+			}
+
+			function checkCode() {
+				var DOES_EXIST = "Noudettavissa";
+				var DOES_NOT_EXIST = "Ei noudettavissa";
+				var input = document.getElementById("codeInput").value;
+				var result = "";
+
+				if (fileDisplayArea.innerText.search(input) == -1) {
+					result = DOES_NOT_EXIST;
+				} else {
+					result = DOES_EXIST;
+				}
+				window.alert(result);
+				document.getElementById("codeInput").value = "";
+				document.getElementById("codeInput").focus();
+			}
+		</script>
+
+	</body>
+</html>
