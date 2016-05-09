@@ -48,7 +48,7 @@
 						reader.onload = function(e) {
 							fileDisplayHeader.innerText = "Nykyinen lista:"
 							fileDisplayArea.innerText = reader.result;
-							localStorage.koodilista = reader.result;
+							localStorage.koodilista = reader.result; // update localstorage
 						}
 						reader.readAsText(file, "UTF-8");
 					} else {
@@ -66,7 +66,14 @@
 				if (fileDisplayArea.innerText.search(input) == -1) {
 					result = DOES_NOT_EXIST;
 				} else {
-					result = DOES_EXIST;
+						if (fileDisplayArea.innerText.search(input + " KAYTETTY") == -1) {
+							result = DOES_EXIST;
+							fileDisplayArea.innerText = fileDisplayArea.innerText.replace(input, input + " KAYTETTY " + new Date());
+							localStorage.koodilista = fileDisplayArea.innerText; // update localstorage
+						} else {
+							result = DOES_NOT_EXIST;
+						}
+
 				}
 				window.alert(result);
 				document.getElementById("codeInput").value = "";
